@@ -14,6 +14,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MainActivity"
+        lateinit var batterLevelReceiver: BatterLevelReceiver
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,9 +31,11 @@ class MainActivity : AppCompatActivity() {
         val intentFilter = IntentFilter()
         //设置频道
         intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED)
+        intentFilter.addAction(Intent.ACTION_POWER_CONNECTED)
+        intentFilter.addAction(Intent.ACTION_POWER_DISCONNECTED)
         //第三步
         //创建接受者
-        val batterLevelReceiver = BatterLevelReceiver()
+        batterLevelReceiver = BatterLevelReceiver()
         //第四步
         //动态注册广播
         registerReceiver(batterLevelReceiver, intentFilter)
@@ -43,10 +46,35 @@ class MainActivity : AppCompatActivity() {
     * */
     inner class BatterLevelReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            Log.d(TAG, intent?.action.toString())
-            Log.d(TAG, "当前电量：" + intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, 0))
-            batter_level.text = "当前电量：" + intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, 0)
+            val action = intent?.action
+            when {
+                Intent.ACTION_BATTERY_CHANGED == action -> {
+
+                    Log.d(TAG, intent?.action.toString())
+
+                    val currentLevel = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, 0)
+                    Log.d(TAG, "当前电量：" + currentLevel)
+                    batter_level.text = "当前电量：" + currentLevel
+
+                    val maxLevel = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, 0);
+
+                    val i = maxLevel?.let { currentLevel?.times(1.0.div(it).times(100)) }
+
+                    Log.d(TAG, "当前电量百分比：" + i + "%")
+                }
+                Intent.ACTION_POWER_CONNECTED == action -> {
+                    Log.d(TAG, "usb 连接上了。。。")
+                }
+                Intent.ACTION_POWER_DISCONNECTED == action -> {
+                    Log.d(TAG, "usb断开了。。。")
+                }
+            }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(batterLevelReceiver)
     }
 
 }

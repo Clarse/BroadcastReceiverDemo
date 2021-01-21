@@ -2,7 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.broadcastreceiverdemo">
 
-<!--    <permission android:name="android.permission.BATTERY_STATS" />-->
+    <!--    <permission android:name="android.permission.BATTERY_STATS" />-->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <permission android:name="com.example.broadcastreceiverdemo.ORDER_PERMISSION" />
 
     <application
         android:allowBackup="true"
@@ -11,13 +14,62 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BroadcastReceiverDemo">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"></activity>
+
+        <receiver android:name=".BootCompleteReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".MessageReceiver">
+            <intent-filter>
+                <action android:name="com.example.broadcastreceiverdemo.SEND_MSG" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".AppStateChangeReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
+        <activity android:name=".SendBroadcastActivity">
+
+        </activity>
+
+        <activity android:name=".SendOrderBroadcastActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".HighLevelReceiver">
+            <!--priority表示等级默认是-1000~1000-->
+            <intent-filter android:priority="1000">
+                <action android:name="com.example.broadcastreceiverdemo.ORDER_BROADCAST" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".DefaultLevelReceiver">
+            <!--priority表示等级默认是-1000~1000-->
+            <intent-filter android:priority="0">
+                <action android:name="com.example.broadcastreceiverdemo.ORDER_BROADCAST" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".LowLevelReceiver">
+            <!--priority表示等级默认是-1000~1000-->
+            <intent-filter android:priority="-1000">
+                <action android:name="com.example.broadcastreceiverdemo.ORDER_BROADCAST" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
